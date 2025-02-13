@@ -232,6 +232,19 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
       }
 
       setIsLoading(true);
+      
+      const response = await fetch("https://educasm-backend.vercel.app/stream-content",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, userContext }),
+        }
+      );
+
+      console.log(response)
+      if (!response.ok) {
+        throw Error(response.statusText)
+      }
 
       let tempMessageList: Message[] = [];
       if (isRelatedQuery) {
@@ -266,15 +279,6 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
 
 
       setShowInitialSearch(false);
-
-
-      const response = await fetch("https://educasm-backend.vercel.app/stream-content",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query, userContext }),
-        }
-      );
       let reader = response?.body?.getReader();
       let result;
       let decoder = new TextDecoder();
