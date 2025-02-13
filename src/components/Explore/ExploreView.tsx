@@ -6,14 +6,13 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { SearchBar } from '../shared/SearchBar';
 import { GPTService } from '../../services/gptService';
-import { MarkdownComponentProps, UserContext } from '../../types';
+import { MarkdownComponentProps } from '../../types';
 import { RelatedTopics } from './RelatedTopics';
 import { RelatedQuestions } from './RelatedQuestions';
 import { LoadingAnimation } from '../shared/LoadingAnimation';
-import { ExploreViewProps, Message, StreamChunk } from './exploreTypes';
+import { ExploreViewProps, Message } from './exploreTypes';
 import { useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import axios from 'axios'
 
 const MarkdownComponents: Record<string, React.FC<MarkdownComponentProps>> = {
   h1: ({ children, ...props }) => (
