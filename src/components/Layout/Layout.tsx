@@ -1,12 +1,12 @@
 // src/components/Layout/Layout.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Compass, Gamepad2 } from 'lucide-react';
+import Sidebar from './Sidebar';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
     // Force a navigation to "/" even if we're already there
@@ -14,9 +14,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     // Dispatch a custom event that ExploreView can listen for
     window.dispatchEvent(new CustomEvent('resetExplore'));
   };
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
 
   return (
     <div className="min-h-screen flex flex-col">
+       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+
       {/* Top Logo Bar - Simplified */}
       <header className="fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-lg z-40">
         <div className="flex justify-center items-center h-14 px-4">
@@ -38,7 +42,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
       {/* Main Content */}
       <main className="flex-1 mt-14 mb-[5.5rem]">
+
         <div className="max-w-4xl mx-auto px-4">
+
           {children}
         </div>
       </main>

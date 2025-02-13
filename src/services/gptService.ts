@@ -1,10 +1,10 @@
 import { Question, UserContext, ExploreResponse } from '../types';
 import OpenAI from 'openai';
-  
-  export class GPTService {
+
+export class GPTService {
   private openai: OpenAI;
-  
-    constructor() {
+
+  constructor() {
     this.openai = new OpenAI({
       apiKey: import.meta.env.VITE_OPENAI_API_KEY,
       dangerouslyAllowBrowser: true
@@ -14,24 +14,24 @@ import OpenAI from 'openai';
   private async makeRequest(systemPrompt: string, userPrompt: string, maxTokens: number = 2000) {
     try {
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: [
-          { 
-            role: 'system', 
-            content: `${systemPrompt} Provide your response in JSON format.` 
+          {
+            role: 'system',
+            content: `${systemPrompt} Provide your response in JSON format.`
           },
-          { 
-            role: 'user', 
-            content: userPrompt 
+          {
+            role: 'user',
+            content: userPrompt
           }
-            ],
-            temperature: 0.7,
+        ],
+        temperature: 0.7,
         max_tokens: maxTokens,
-            response_format: { type: "json_object" }
+        response_format: { type: "json_object" }
       });
 
       return response.choices[0].message?.content || '';
-      } catch (error) {
+    } catch (error) {
       console.error('OpenAI API Error:', error);
       throw new Error('Failed to generate content');
     }
@@ -148,21 +148,21 @@ import OpenAI from 'openai';
         3. Real-world application examples without using the word real world application
         Make it engaging for someone aged ${userContext.age}.`;
 
-        const content = await this.makeRequest(systemPrompt, userPrompt);
+      const content = await this.makeRequest(systemPrompt, userPrompt);
       console.log('Raw GPT response:', content);
-      
+
       if (!content) {
         throw new Error('Empty response from GPT');
       }
 
-        const parsedContent = JSON.parse(content);
+      const parsedContent = JSON.parse(content);
       console.log('Parsed content:', parsedContent);
 
       // Validate the response structure
-      if (!parsedContent.domain || !parsedContent.content || 
-          !parsedContent.content.paragraph1 || 
-          !parsedContent.content.paragraph2 || 
-          !parsedContent.content.paragraph3) {
+      if (!parsedContent.domain || !parsedContent.content ||
+        !parsedContent.content.paragraph1 ||
+        !parsedContent.content.paragraph2 ||
+        !parsedContent.content.paragraph3) {
         throw new Error('Invalid response structure');
       }
 
@@ -174,8 +174,8 @@ import OpenAI from 'openai';
       ].join('\n\n');
 
       // Ensure related topics and questions exist
-      const relatedTopics = Array.isArray(parsedContent.relatedTopics) 
-        ? parsedContent.relatedTopics.slice(0, 5) 
+      const relatedTopics = Array.isArray(parsedContent.relatedTopics)
+        ? parsedContent.relatedTopics.slice(0, 5)
         : [];
 
       const relatedQuestions = Array.isArray(parsedContent.relatedQuestions)
@@ -200,19 +200,19 @@ import OpenAI from 'openai';
       if (!question.text?.trim()) return false;
       if (!Array.isArray(question.options) || question.options.length !== 4) return false;
       if (question.options.some(opt => !opt?.trim())) return false;
-      if (typeof question.correctAnswer !== 'number' || 
-          question.correctAnswer < 0 || 
-          question.correctAnswer > 3) return false;
+      if (typeof question.correctAnswer !== 'number' ||
+        question.correctAnswer < 0 ||
+        question.correctAnswer > 3) return false;
 
       // Explanation validation
-      if (!question.explanation?.correct?.trim() || 
-          !question.explanation?.key_point?.trim()) return false;
+      if (!question.explanation?.correct?.trim() ||
+        !question.explanation?.key_point?.trim()) return false;
 
       // Additional validation
       if (question.text.length < 10) return false;  // Too short
       if (question.options.length !== new Set(question.options).size) return false; // Duplicates
-      if (question.explanation.correct.length < 5 || 
-          question.explanation.key_point.length < 5) return false; // Too short explanations
+      if (question.explanation.correct.length < 5 ||
+        question.explanation.key_point.length < 5) return false; // Too short explanations
 
       return true;
     } catch (error) {
@@ -233,7 +233,7 @@ import OpenAI from 'openai';
 
       // Randomly select an aspect to focus on
       const selectedAspect = aspects[Math.floor(Math.random() * aspects.length)];
-      
+
       const systemPrompt = `Generate a UNIQUE multiple-choice question about ${topic}.
         Focus on: ${selectedAspect.replace('_', ' ')}
 
@@ -304,7 +304,7 @@ import OpenAI from 'openai';
         Use current examples and trends.`;
 
       const content = await this.makeRequest(systemPrompt, userPrompt, 1500);
-      
+
       if (!content) {
         throw new Error('Empty response received');
       }
@@ -368,9 +368,9 @@ import OpenAI from 'openai';
       options: optionsWithIndex.map(opt => opt.text),
       correctAnswer: newCorrectAnswer
     };
-    }
-  
-    async getTestQuestions(topic: string, examType: 'JEE' | 'NEET'): Promise<Question[]> {
+  }
+
+  async getTestQuestions(topic: string, examType: 'JEE' | 'NEET'): Promise<Question[]> {
     try {
       const systemPrompt = `Create a ${examType} exam test set about ${topic}.
         Generate exactly 15 questions following this structure:
@@ -389,11 +389,11 @@ import OpenAI from 'openai';
             }
           ]
         }`;
-        // ..
-        
+      // ..
+
 
       console.log('Generating test questions...');
-      
+
       const content = await this.makeRequest(
         systemPrompt,
         `Create 15 ${examType} questions about ${topic} (5 easy, 5 medium, 5 hard)`,
@@ -468,7 +468,7 @@ import OpenAI from 'openai';
   async exploreQuery(query: string): Promise<string> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system' as const,
@@ -555,7 +555,7 @@ import OpenAI from 'openai';
   }
 
   async streamExploreContent(
-    query: string, 
+    query: string,
     userContext: UserContext,
     onChunk: (content: { text?: string, topics?: any[], questions?: any[] }) => void
   ): Promise<void> {
@@ -618,7 +618,7 @@ import OpenAI from 'openai';
           Follow the format and length limits strictly.`;
 
         const stream = await this.openai.chat.completions.create({
-          model: 'gpt-3.5-turbo',
+          model: 'gpt-4o-mini',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt }
@@ -632,10 +632,10 @@ import OpenAI from 'openai';
         let currentTopics: any[] = [];
         let currentQuestions: any[] = [];
         let isJsonSection = false;
-        
+
         for await (const chunk of stream) {
           const content = chunk.choices[0]?.delta?.content || '';
-          
+
           if (content.includes('---')) {
             isJsonSection = true;
             continue;
@@ -649,7 +649,7 @@ import OpenAI from 'openai';
                 const jsonStr = jsonContent.trim();
                 if (jsonStr.startsWith('{') && jsonStr.endsWith('}')) {
                   const parsed = JSON.parse(jsonStr);
-                  
+
                   // Process topics if available
                   if (parsed.topics && Array.isArray(parsed.topics)) {
                     parsed.topics.forEach((topic: any) => {
@@ -690,7 +690,7 @@ import OpenAI from 'openai';
             }
           } else {
             mainContent += content;
-            onChunk({ 
+            onChunk({
               text: mainContent.trim(),
               topics: currentTopics.length > 0 ? currentTopics : undefined,
               questions: currentQuestions.length > 0 ? currentQuestions : undefined
@@ -713,7 +713,7 @@ import OpenAI from 'openai';
         await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
       }
     }
-    }
   }
-  
-  export const gptService = new GPTService();
+}
+
+export const gptService = new GPTService();

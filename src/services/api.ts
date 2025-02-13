@@ -1,4 +1,5 @@
 // src/services/api.ts
+import axios from "axios";
 import { Question, UserContext, ExploreResponse } from "../types";
 import { GPTService } from "./gptService";
 
@@ -19,8 +20,10 @@ const transformQuestion = (rawQuestion: Question): Question => ({
 export const api = {
   async getQuestion(topic: string, level: number, userContext: UserContext): Promise<Question> {
     try {
-      const question = await gptService.getPlaygroundQuestion(topic, level, userContext);
-      return transformQuestion(question);
+      const question = await axios.post("https://educasm-backend.vercel.app/get-playground-questions", {
+        topic, level, userContext
+      });
+      return transformQuestion(question.data);
     } catch (error) {
       console.error("Question generation error:", error);
       throw new Error("Failed to generate question");

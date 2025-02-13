@@ -4,30 +4,10 @@ import { SearchBar } from "../shared/SearchBar";
 import { Loading } from "../shared/Loading";
 import { useApi } from "../../hooks/useApi";
 import { Trophy, Timer, Target, Award, Pause, Play, CheckCircle, XCircle, Lightbulb } from "lucide-react";
-import { Question, UserContext } from "../../types";
+import { Question } from "../../types";
+import { PlaygroundViewProps, Stats, TopicProgress } from "./playgroundTypes";
 
-interface PlaygroundViewProps {
-  initialQuery?: string;
-  onError: (message: string) => void;
-  onSuccess: (message: string) => void;
-  userContext: UserContext;
-}
 
-interface Stats {
-  questions: number;
-  accuracy: number;
-  streak: number;
-  bestStreak: number;
-  avgTime: number;
-}
-
-interface TopicProgress {
-  totalAttempts: number;
-  successRate: number;
-  averageTime: number;
-  lastLevel: number;
-  masteryScore: number;
-}
 
 export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
   initialQuery,
@@ -177,6 +157,13 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
 
   const togglePause = () => {
     setIsPaused(!isPaused);
+
+    if(isPaused){
+      startQuestionTimer()
+    }else{
+      stopQuestionTimer()
+    }
+
     if (nextQuestionTimer) {
       clearTimeout(nextQuestionTimer);
       setNextQuestionTimer(null);
