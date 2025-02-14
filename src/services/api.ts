@@ -23,7 +23,7 @@ export const api = {
     isCorrectAnswer?: boolean,
     timeSpentOnLastQuestion?: number): Promise<Question> {
     try {
-      const question = await axios.post("http://localhost:5000/get-playground-questions", {
+      const question = await axios.post("https://educasm-backend.vercel.app/get-playground-questions", {
         topic, level, userContext, lastQuestion, isCorrectAnswer, timeSpentOnLastQuestion
       });
       return transformQuestion(question.data);
