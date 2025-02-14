@@ -41,7 +41,7 @@ const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
 
             {/* Sidebar */}
             <aside
-                className={`fixed  top-0 left-0 h-full w-64 bg-[#1A1F2C] border-r border-[#2A2F3C] transform transition-transform duration-300 ease-in-out z-[90] ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+                className={`fixed   top-0 left-0 h-full w-64 bg-[#1A1F2C] border-r border-[#2A2F3C] transform transition-transform duration-300 ease-in-out z-[90] ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
                     }`}
             >
                 <div className="flex flex-col h-full">
@@ -84,12 +84,20 @@ const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
 
                     {/* Recent Items List */}
                     <div className="flex-1 pl-11 space-y-3">
-                        <div className="space-y-3">
+                        <div className="space-y-3 max-h-96 overflow-y-auto
+                                        [&::-webkit-scrollbar]:w-2
+                                        [&::-webkit-scrollbar-track]:rounded-full
+                                        [&::-webkit-scrollbar-thumb]:rounded-full
+                                        [&::-webkit-scrollbar-track]:bg-neutral-700
+                                        [&::-webkit-scrollbar-thumb]:bg-neutral-500">
 
 
                             {exploreMessageHistory.length > 0 && exploreMessageHistory.map((item: Message[]) => {
                                 const contentTitle = item.length > 0 && item[0].user.content;
-                                return <div onClick={() => handleRecentTabs(item)} className="text-sm text-gray-400 py-1 px-2 hover:text-gray-200 cursor-pointer transition-colors">
+                                return <div onClick={() => {
+                                    handleRecentTabs(item)
+                                    onToggle()
+                                }} className="text-sm text-gray-400 py-1 px-2 hover:text-gray-200 cursor-pointer transition-colors">
                                     {contentTitle}
                                 </div>
                             })}
@@ -101,7 +109,7 @@ const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
             {/* Mobile toggle button */}
             <button
                 onClick={onToggle}
-                className="fixed bottom-4 right-4 lg:hidden bg-sidebar-background text-white p-3 rounded-full shadow-lg hover:bg-sidebar-hover transition-colors z-50"
+                className="fixed top-2 right-4 lg:hidden bg-sidebar-background text-white p-3 rounded-full shadow-lg hover:bg-sidebar-hover transition-colors z-50"
             >
                 <Menu className="w-6 h-6" />
             </button>

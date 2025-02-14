@@ -52,15 +52,15 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
     return saved
       ? JSON.parse(saved)
       : {
-          totalAttempts: 0,
-          successRate: 0,
-          averageTime: 0,
-          lastLevel: 1,
-          masteryScore: 0,
-        };
+        totalAttempts: 0,
+        successRate: 0,
+        averageTime: 0,
+        lastLevel: 1,
+        masteryScore: 0,
+      };
   });
 
-  const [nextQuestion, setNextQuestion] = useState<Question | null>(null);
+  // const [nextQuestion, setNextQuestion] = useState<Question | null>(null);
   const [preloadedQuestion, setPreloadedQuestion] = useState<Question | null>(null);
 
   // Add state for tracking when to show next question
@@ -71,7 +71,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
     if (timerInterval) {
       clearInterval(timerInterval);
     }
-    
+
     const interval = setInterval(() => {
       setCurrentQuestionTime((prev) => prev + 1);
     }, 1000);
@@ -85,16 +85,17 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
     }
   };
 
-  const prefetchNextQuestion = async () => {
-    try {
-      const question = await getQuestion(query, 1, userContext);
-      setNextQuestion(question);
-    } catch (error) {
-      console.error("Error prefetching next question:", error);
-    }
-  };
+  // const prefetchNextQuestion = async () => {
+  //   try {
+  //     console.log("prefetchNextQuestion")
+  //     const question = await getQuestion(query, 1, userContext);
+  //     setNextQuestion(question);
+  //   } catch (error) {
+  //     console.error("Error prefetching next question:", error);
+  //   }
+  // };
 
-  const fetchNewQuestion = async () => {
+  const fetchNewQuestion = async (answerIndex: number) => {
     if (!query) return;
 
     if (sessionStats.totalQuestions >= sessionStats.sessionLimit) {
@@ -107,7 +108,8 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
 
     try {
       console.log('Fetching next question...'); // Debug log
-      const question = await getQuestion(query, 1, userContext);
+
+      const question = await getQuestion(query, currentQuestion?.difficulty ?? 1, userContext, currentQuestion, answerIndex === currentQuestion?.correctAnswer, currentQuestionTime);
       console.log('Question loaded:', question); // Debug log
       setPreloadedQuestion(question);
     } catch (error) {
@@ -125,6 +127,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
       setQuery(newQuery);
 
       // Load first question immediately
+      console.log("first Question")
       const firstQuestion = await getQuestion(newQuery, 1, userContext);
       setCurrentQuestion(firstQuestion);
       setSelectedAnswer(null);
@@ -158,9 +161,9 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
   const togglePause = () => {
     setIsPaused(!isPaused);
 
-    if(isPaused){
+    if (isPaused) {
       startQuestionTimer()
-    }else{
+    } else {
       stopQuestionTimer()
     }
 
@@ -177,7 +180,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
       const newQuestions = prev.questions + 1;
       const newAccuracy = (prev.accuracy * prev.questions + (isCorrect ? 100 : 0)) / newQuestions;
       const newStreak = isCorrect ? prev.streak + 1 : 0;
-      
+
       return {
         questions: newQuestions,
         accuracy: newAccuracy,
@@ -206,25 +209,25 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
 
   const handleAnswer = (index: number) => {
     if (selectedAnswer !== null || !currentQuestion) return;
-    
+
     setSelectedAnswer(index);
     setShowExplanation(true);
     stopQuestionTimer();
     updateStats(index === currentQuestion.correctAnswer);
-    
+
     if (!isPaused) {
       // Start loading next question immediately
-      fetchNewQuestion();
+      fetchNewQuestion(index);
       // Start countdown for transition
       startCountdown();
     }
   };
 
-  useEffect(() => {
-    if (query) {
-      fetchNewQuestion();
-    }
-  }, [query]);
+  // useEffect(() => {
+  //   if (query) {
+  //     fetchNewQuestion();
+  //   }
+  // }, [query]);
 
   useEffect(() => {
     if (initialQuery) {
@@ -238,11 +241,12 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
     }
   }, [_topicProgress]);
 
-  useEffect(() => {
-    if (nextQuestion) {
-      prefetchNextQuestion();
-    }
-  }, [nextQuestion]);
+  // useEffect(() => {
+  //   console.log("prefetchNextQuestion")
+  //   if (nextQuestion) {
+  //     prefetchNextQuestion();
+  //   }
+  // }, [nextQuestion]);
 
   // Use useEffect to handle question transitions
   useEffect(() => {
@@ -290,7 +294,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
           <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4">
             What do you want to practice?
           </h1>
-          
+
           <div className="w-full max-w-xl mx-auto">
             <SearchBar
               onSearch={handleSearch}
@@ -298,11 +302,11 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
               centered={true}
               className="bg-gray-900/80"
             />
-            
+
             <p className="text-sm text-gray-400 text-center mt-1">
               Press Enter to search
             </p>
-            
+
             <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
               <span className="text-sm text-gray-400">Try:</span>
               <button
@@ -398,14 +402,13 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
                   onClick={() => handleAnswer(idx)}
                   disabled={selectedAnswer !== null}
                   className={`w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg 
-                    text-xs sm:text-sm leading-relaxed ${
-                      selectedAnswer === null
-                        ? "bg-card hover:bg-gray-800"
-                        : idx === currentQuestion.correctAnswer
+                    text-xs sm:text-sm leading-relaxed ${selectedAnswer === null
+                      ? "bg-card hover:bg-gray-800"
+                      : idx === currentQuestion.correctAnswer
                         ? "bg-green-500/20 text-green-500"
                         : selectedAnswer === idx
-                        ? "bg-red-500/20 text-red-500"
-                        : "bg-card"
+                          ? "bg-red-500/20 text-red-500"
+                          : "bg-card"
                     }`}
                 >
                   <span className="inline-block w-5 sm:w-6 font-medium">
@@ -434,17 +437,15 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
                   </div>
                 )}
 
-                <div className={`px-3 py-2 rounded-lg ${
-                  selectedAnswer === currentQuestion.correctAnswer
+                <div className={`px-3 py-2 rounded-lg ${selectedAnswer === currentQuestion.correctAnswer
                     ? "bg-green-500/20 text-green-500"
                     : "bg-red-500/20 text-red-500"
-                }`}>
+                  }`}>
                   <div className="flex items-start gap-2">
-                    <div className={`p-1 rounded-full ${
-                      selectedAnswer === currentQuestion.correctAnswer
+                    <div className={`p-1 rounded-full ${selectedAnswer === currentQuestion.correctAnswer
                         ? "bg-green-500/20"
                         : "bg-red-500/20"
-                    }`}>
+                      }`}>
                       {selectedAnswer === currentQuestion.correctAnswer ? (
                         <CheckCircle className="w-4 h-4" />
                       ) : (

@@ -9,11 +9,14 @@ export const useApi = () => {
   const getQuestion = async (
     topic: string,
     level: number,
-    userContext: UserContext
+    userContext: UserContext,
+    lastQuestion? : Question  | null,
+    isCorrectAnswer? : boolean,
+    timeSpentOnLastQuestion? : number
   ): Promise<Question> => {
     try {
       setIsLoading(true);
-      return await api.getQuestion(topic, level, userContext);
+      return await api.getQuestion(topic, level, userContext,lastQuestion, isCorrectAnswer,timeSpentOnLastQuestion);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An error occurred";

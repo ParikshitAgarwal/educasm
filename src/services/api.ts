@@ -18,10 +18,13 @@ const transformQuestion = (rawQuestion: Question): Question => ({
 });
 
 export const api = {
-  async getQuestion(topic: string, level: number, userContext: UserContext): Promise<Question> {
+  async getQuestion(topic: string, level: number, userContext: UserContext,
+    lastQuestion?: Question | null,
+    isCorrectAnswer?: boolean,
+    timeSpentOnLastQuestion?: number): Promise<Question> {
     try {
-      const question = await axios.post("https://educasm-backend.vercel.app/get-playground-questions", {
-        topic, level, userContext
+      const question = await axios.post("http://localhost:5000/get-playground-questions", {
+        topic, level, userContext, lastQuestion, isCorrectAnswer, timeSpentOnLastQuestion
       });
       return transformQuestion(question.data);
     } catch (error) {

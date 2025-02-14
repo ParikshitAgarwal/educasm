@@ -385,7 +385,6 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
 
   return (
     <div>
-      {/* <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} /> */}
 
       <div className="w-full min-h-[calc(100vh-4rem)] flex flex-col" ref={containerRef}>
 
